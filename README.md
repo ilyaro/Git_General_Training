@@ -1,11 +1,11 @@
-This is git training with hands-on practice
-13 hands-on exercises 
+## Description:
 
-First read Git_General_Training.pdf
-When you go to Handson # in the training read what you need to do 
-Do it and see appropriate Lab here: Git_Training-LAB.pdf
+This is from zero to hero advanced git training with hands-on practice of 13 hands-on exercises
 
-Practice goes from adding user details to git and creating repo
-to all basic to advanced commands
+First, read [Git_General_Training.pdf](Git_General_Training.pdf) 
 
-All on local disk without usage of git servers
+When you go to Handson # in the training, please read what you need to do Do it and see the appropriate Lab here: [Git_Training-LAB.pdf](Git_Training-LAB.pdf)
+
+The practice goes from adding user details to git and creating a repo for all basic to advanced commands
+
+All on local disk without the usage of git servers
