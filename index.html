@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git Training Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Satoshi:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --surface-2: #19191d;
+  --surface-3: #222228;
+  --border: #2a2a32;
+  --border-light: #35354a;
+  --text: #e8e8ed;
+  --text-dim: #8888a0;
+  --text-muted: #55556a;
+  --accent: #f97316;
+  --accent-dim: #f9731622;
+  --green: #22c55e;
+  --green-dim: #22c55e18;
+  --blue: #3b82f6;
+  --blue-dim: #3b82f618;
+  --purple: #a855f7;
+  --purple-dim: #a855f718;
+  --red: #ef4444;
+  --red-dim: #ef444418;
+  --yellow: #eab308;
+  --yellow-dim: #eab30818;
+  --cyan: #06b6d4;
+  --terminal-bg: #0c0c0e;
+  --terminal-border: #1e1e26;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Satoshi', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+/* ===== HERO ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.15;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black, transparent);
+}
+
+.hero-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity: 0.06;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.06; }
+  50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.09; }
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  margin-bottom: 2rem;
+  animation: fadeInDown 0.8s ease;
+  z-index: 1;
+}
+
+.hero-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  text-align: center;
+  z-index: 1;
+  animation: fadeInUp 0.8s ease;
+}
+
+.hero h1 .gradient {
+  background: linear-gradient(135deg, var(--accent) 0%, #fb923c 50%, var(--yellow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 1.15rem;
+  color: var(--text-dim);
+  max-width: 520px;
+  text-align: center;
+  margin-top: 1.5rem;
+  z-index: 1;
+  animation: fadeInUp 0.8s ease 0.15s both;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2.5rem;
+  z-index: 1;
+  animation: fadeInUp 0.8s ease 0.3s both;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+}
+.btn-primary:hover { background: #fb923c; transform: translateY(-1px); box-shadow: 0 8px 30px var(--accent-dim); }
+
+.btn-secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--border-light); background: var(--surface-3); }
+
+.hero-stats {
+  display: flex;
+  gap: 3rem;
+  margin-top: 4rem;
+  z-index: 1;
+  animation: fadeInUp 0.8s ease 0.45s both;
+}
+
+.hero-stat {
+  text-align: center;
+}
+
+.hero-stat .num {
+  font-size: 1.8rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+}
+
+.hero-stat .label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== NAV (sidebar) ===== */
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1.5rem 0;
+  z-index: 10;
+}
+
+.sidebar-logo {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 1rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+}
+
+.sidebar-logo svg {
+  width: 24px;
+  height: 24px;
+  color: var(--accent);
+}
+
+.sidebar-section {
+  padding: 0.5rem 1rem;
+}
+
+.sidebar-section-title {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  padding: 0.5rem;
+  font-weight: 600;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+  position: relative;
+}
+.sidebar-link:hover { background: var(--surface-2); color: var(--text); }
+.sidebar-link.active { background: var(--accent-dim); color: var(--accent); }
+
+.sidebar-link .exercise-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--surface-3);
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.sidebar-link.active .exercise-num {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.sidebar-link.completed .exercise-num {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.sidebar-progress {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+.progress-bar-bg {
+  height: 4px;
+  background: var(--surface-3);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--yellow));
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.progress-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  padding: 3rem;
+  max-width: 860px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .main-content { padding: 1.5rem; }
+}
+
+/* Exercise Card */
+.exercise {
+  margin-bottom: 5rem;
+  animation: fadeInUp 0.6s ease;
+}
+
+.exercise-header {
+  margin-bottom: 2rem;
+}
+
+.exercise-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.tag-basics { background: var(--green-dim); color: var(--green); }
+.tag-teamwork { background: var(--blue-dim); color: var(--blue); }
+.tag-conflict { background: var(--red-dim); color: var(--red); }
+.tag-branch { background: var(--purple-dim); color: var(--purple); }
+.tag-advanced { background: var(--yellow-dim); color: var(--yellow); }
+
+.exercise h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.exercise-desc {
+  color: var(--text-dim);
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* Steps */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.step {
+  position: relative;
+  padding-left: 2.5rem;
+}
+
+.step::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 30px;
+  bottom: -20px;
+  width: 1px;
+  background: var(--border);
+}
+
+.step:last-child::before { display: none; }
+
+.step-dot {
+  position: absolute;
+  left: 4px;
+  top: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  z-index: 1;
+  transition: all 0.2s;
+}
+
+.step.active .step-dot {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-dim);
+}
+
+.step-instruction {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* Terminal Block */
+.terminal {
+  background: var(--terminal-bg);
+  border: 1px solid var(--terminal-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--terminal-border);
+}
+
+.terminal-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.terminal-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.terminal-dots span:nth-child(1) { background: #ef4444; }
+.terminal-dots span:nth-child(2) { background: #eab308; }
+.terminal-dots span:nth-child(3) { background: #22c55e; }
+
+.terminal-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.terminal-copy {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.15s;
+}
+.terminal-copy:hover { color: var(--text); background: var(--surface-3); }
+
+.terminal-body {
+  padding: 14px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  overflow-x: auto;
+}
+
+.terminal-body .prompt {
+  color: var(--green);
+  user-select: none;
+}
+
+.terminal-body .cmd {
+  color: var(--text);
+}
+
+.terminal-body .flag {
+  color: var(--cyan);
+}
+
+.terminal-body .string {
+  color: var(--yellow);
+}
+
+.terminal-body .comment {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.terminal-body .output {
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+
+/* Info callouts */
+.callout {
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius);
+  margin: 0.75rem 0;
+  font-size: 0.85rem;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.callout-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.callout-info {
+  background: var(--blue-dim);
+  border: 1px solid #3b82f622;
+  color: var(--blue);
+}
+
+.callout-warn {
+  background: var(--yellow-dim);
+  border: 1px solid #eab30822;
+  color: var(--yellow);
+}
+
+.callout-danger {
+  background: var(--red-dim);
+  border: 1px solid #ef444422;
+  color: var(--red);
+}
+
+.callout-tip {
+  background: var(--green-dim);
+  border: 1px solid #22c55e22;
+  color: var(--green);
+}
+
+/* File content blocks */
+.file-block {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.file-block-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--surface-3);
+  border-bottom: 1px solid var(--border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.file-block-header .file-icon {
+  opacity: 0.6;
+}
+
+.file-block-body {
+  padding: 12px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.file-block-body .line-num {
+  color: var(--text-muted);
+  user-select: none;
+  display: inline-block;
+  width: 24px;
+  text-align: right;
+  margin-right: 16px;
+}
+
+/* Divider */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 4rem 0;
+}
+
+/* Concept cards */
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.concept-card {
+  padding: 1.25rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: all 0.2s;
+}
+.concept-card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+}
+
+.concept-card h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.concept-card p {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* Git graph visualization */
+.git-graph {
+  padding: 1.5rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 1rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  line-height: 2;
+  overflow-x: auto;
+  color: var(--text-dim);
+}
+
+.git-graph .branch-main { color: var(--green); }
+.git-graph .branch-fix { color: var(--purple); }
+.git-graph .tag { color: var(--yellow); }
+.git-graph .head { color: var(--accent); font-weight: 700; }
+.git-graph .hash { color: var(--cyan); }
+
+/* Back to top */
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+}
+.back-to-top.visible { opacity: 1; pointer-events: all; }
+.back-to-top:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Diff highlight */
+.diff-add { color: var(--green); }
+.diff-del { color: var(--red); }
+
+/* Keyboard shortcut badges */
+kbd {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-dim);
+}
+
+/* Conflict block styling */
+.conflict-block {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin: 0.5rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.8;
+}
+.conflict-marker { color: var(--red); font-weight: 700; }
+.conflict-ours { background: var(--green-dim); display: block; padding: 0 4px; }
+.conflict-theirs { background: var(--red-dim); display: block; padding: 0 4px; }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><span class="dot"></span> Hands-on Lab</div>
+  <h1>Learn <span class="gradient">Git</span> by doing.</h1>
+  <p class="hero-sub">A progressive, hands-on training lab. Build real muscle memory with Git through practical exercises — from your first commit to advanced rebasing.</p>
+  <div class="hero-cta">
+    <a href="#exercises" class="btn btn-primary">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Start Training
+    </a>
+    <a href="#overview" class="btn btn-secondary">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Overview
+    </a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">13</div><div class="label">Exercises</div></div>
+    <div class="hero-stat"><div class="num">~2h</div><div class="label">Duration</div></div>
+    <div class="hero-stat"><div class="num">50+</div><div class="label">Commands</div></div>
+  </div>
+</section>
+
+<!-- ===== OVERVIEW ===== -->
+<section id="overview" style="padding: 4rem 2rem; max-width: 900px; margin: 0 auto;">
+  <h2 style="font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 0.5rem;">What you'll learn</h2>
+  <p style="color: var(--text-dim); margin-bottom: 2rem; font-size: 0.95rem;">Each exercise builds on the last. By the end, you'll have working knowledge of Git's most important workflows.</p>
+  <div class="concept-grid">
+    <div class="concept-card">
+      <h4>🌱 Basics</h4>
+      <p>init, clone, add, commit, push — the daily workflow</p>
+    </div>
+    <div class="concept-card">
+      <h4>📁 Restructure</h4>
+      <p>Rename, move files and track changes through git mv</p>
+    </div>
+    <div class="concept-card">
+      <h4>👥 Teamwork</h4>
+      <p>Multi-user workflows with push, pull and rebase</p>
+    </div>
+    <div class="concept-card">
+      <h4>⚡ Conflicts</h4>
+      <p>Handle merge conflicts with rebase like a pro</p>
+    </div>
+    <div class="concept-card">
+      <h4>🏷️ Tagging</h4>
+      <p>Mark releases and share tags across repos</p>
+    </div>
+    <div class="concept-card">
+      <h4>🔀 Branching</h4>
+      <p>Create, push and manage feature branches</p>
+    </div>
+    <div class="concept-card">
+      <h4>🔗 Merging</h4>
+      <p>Merge branches, inspect with blame and log</p>
+    </div>
+    <div class="concept-card">
+      <h4>🍒 Cherry-pick</h4>
+      <p>Checkout old commits and cherry-pick selectively</p>
+    </div>
+    <div class="concept-card">
+      <h4>⏪ Reverts</h4>
+      <p>Undo changes at every level — working dir, staged, committed, pushed</p>
+    </div>
+    <div class="concept-card">
+      <h4>📦 Stash</h4>
+      <p>Stash work, do urgent fixes, pop your changes back</p>
+    </div>
+    <div class="concept-card">
+      <h4>🩹 Patches</h4>
+      <p>Format and apply patches across repositories</p>
+    </div>
+    <div class="concept-card">
+      <h4>🔬 Squash</h4>
+      <p>Interactive rebase to squash commits together</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EXERCISES ===== -->
+<div class="layout" id="exercises">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 3v6m0 6v6"/><path d="M5.636 5.636l4.243 4.243m4.242 4.242l4.243 4.243"/></svg>
+      Git Training Lab
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="#ex1" class="sidebar-link active"><span class="exercise-num">I</span>Adding Files</a>
+      <a href="#ex2" class="sidebar-link"><span class="exercise-num">II</span>Restructuring</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Collaboration</div>
+      <a href="#ex3" class="sidebar-link"><span class="exercise-num">III</span>Teamwork</a>
+      <a href="#ex4" class="sidebar-link"><span class="exercise-num">IV</span>Conflicts</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Intermediate</div>
+      <a href="#ex5" class="sidebar-link"><span class="exercise-num">V</span>Tagging</a>
+      <a href="#ex6" class="sidebar-link"><span class="exercise-num">VI</span>Branching</a>
+      <a href="#ex7" class="sidebar-link"><span class="exercise-num">VII</span>Merging</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Advanced</div>
+      <a href="#ex8" class="sidebar-link"><span class="exercise-num">VIII</span>Cherry-pick</a>
+      <a href="#ex9" class="sidebar-link"><span class="exercise-num">IX</span>Reverts</a>
+      <a href="#ex10" class="sidebar-link"><span class="exercise-num">X</span>Stash</a>
+      <a href="#ex11" class="sidebar-link"><span class="exercise-num">XI</span>Patches</a>
+      <a href="#ex12" class="sidebar-link"><span class="exercise-num">XII</span>Squash</a>
+      <a href="#ex13" class="sidebar-link"><span class="exercise-num">XIII</span>Cross-repo Fetch</a>
+    </div>
+    <div class="sidebar-progress">
+      <div class="progress-label">Progress</div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 0%"></div></div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="main-content">
+
+    <!-- ========== EXERCISE I ========== -->
+    <div class="exercise" id="ex1">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-basics">🌱 Getting Started</div>
+        <h2>Exercise I — Adding Files</h2>
+        <p class="exercise-desc">Set up your identity, create a bare remote repo, clone it, and make your first commit.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step active">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Configure your Git identity. This will appear on every commit.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">Terminal</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">git config</span> <span class="flag">--global</span> <span class="cmd">user.name</span> <span class="string">"YourUSERNAME"</span>
+<span class="prompt">$</span> <span class="cmd">git config</span> <span class="flag">--global</span> <span class="cmd">user.email</span> <span class="string">"YourEMAIL"</span>
+<span class="prompt">$</span> <span class="cmd">git config</span> <span class="flag">--global</span> <span class="cmd">init.defaultBranch main</span>
+<span class="comment"># Verify your settings:</span>
+<span class="prompt">$</span> <span class="cmd">git config</span> <span class="flag">--global</span> <span class="cmd">-l</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Create a bare shared repository (this acts as your "remote origin").</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">Terminal</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">git init</span> <span class="flag">--bare --shared</span> <span class="string">~/git_remote_repo</span>
+            </div>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <span>A <strong>bare</strong> repo has no working directory — it's only the <code>.git</code> internals. Perfect for a shared central server.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Clone it into Harry's workspace. Then explore the <code>.git</code> folder.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">Terminal</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">git clone</span> <span class="string">~/git_remote_repo</span> <span class="string">~/harry</span>
+<span class="prompt">$</span> <span class="cmd">cd</span> <span class="string">~/harry</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Create two files with the content shown below.</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="file-block">
+              <div class="file-block-header"><span class="file-icon">📄</span> main_e.txt</div>
+              <div class="file-block-body">
+<span class="line-num">1</span>include library.txt
+<span class="line-num">2</span>Hello World
+              </div>
+            </div>
+            <div class="file-block">
+              <div class="file-block-header"><span class="file-icon">📄</span> library.txt</div>
+              <div class="file-block-body">
+<span class="line-num">1</span>library line 1
+<span class="line-num">2</span>library line 2
+<span class="line-num">3</span>library line 3
+<span class="line-num">4</span>library line 4
+<span class="line-num">5</span>library line 5
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Stage, review, and commit your first changes.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git add</span> <span class="flag">*</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git status</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git commit</span> <span class="flag">-m</span> <span class="string">"Initial project"</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE II ========== -->
+    <div class="exercise" id="ex2">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-basics">📁 Getting Started</div>
+        <h2>Exercise II — Restructuring Files</h2>
+        <p class="exercise-desc">Rename and reorganize files using <code>git mv</code>, then push to the remote.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Rename <code>main_e.txt</code> → <code>main.txt</code>, create a <code>libs/</code> folder, and move <code>library.txt</code> into it.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git mv</span> main_e.txt main.txt
+<span class="prompt">~/harry]$</span> <span class="cmd">mkdir</span> libs
+<span class="prompt">~/harry]$</span> <span class="cmd">git mv</span> library.txt libs/
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Update <code>main.txt</code> to reference the new path, then stage the change.</div>
+          <div class="file-block">
+            <div class="file-block-header"><span class="file-icon">📄</span> main.txt <span style="color:var(--green); margin-left: auto; font-size: 0.65rem;">MODIFIED</span></div>
+            <div class="file-block-body">
+<span class="line-num">1</span>include <span class="diff-add">libs/</span>library.txt
+<span class="line-num">2</span>Hello World
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git add</span> <span class="flag">-u</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Review, commit, and push the restructuring.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git status</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git diff</span> <span class="flag">--staged</span> main.txt
+<span class="prompt">~/harry]$</span> <span class="cmd">git commit</span> <span class="flag">-m</span> <span class="string">"Restructuring project"</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <span class="callout-icon">✅</span>
+            <span>Always use <code>git diff --staged</code> before committing — it shows exactly what's about to be committed.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE III ========== -->
+    <div class="exercise" id="ex3">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-teamwork">👥 Collaboration</div>
+        <h2>Exercise III — Teamwork</h2>
+        <p class="exercise-desc">Simulate two developers (Harry &amp; Sally) working on the same repo. Learn push/pull with rebase.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">In Harry's repo, change line 3 of <code>libs/library.txt</code>, then commit.</div>
+          <div class="file-block">
+            <div class="file-block-header"><span class="file-icon">📄</span> libs/library.txt — Harry's edit</div>
+            <div class="file-block-body">
+<span class="line-num">1</span>library line 1
+<span class="line-num">2</span>library line 2
+<span class="line-num">3</span><span class="diff-add">Harrys change *here*</span>
+<span class="line-num">4</span>library line 4
+<span class="line-num">5</span>library line 5
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git commit</span> <span class="flag">-a -m</span> <span class="string">"Harrys 1st changes in our library"</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Clone the remote to create Sally's workspace <em>before</em> pushing Harry's changes.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git clone</span> <span class="string">~/git_remote_repo</span> <span class="string">~/sally</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span>
+            </div>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <span>Sally cloned <strong>before</strong> Harry pushed — she doesn't have Harry's latest changes yet.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">In Sally's repo, change line 1, commit, and try to push.</div>
+          <div class="file-block">
+            <div class="file-block-header"><span class="file-icon">📄</span> libs/library.txt — Sally's edit</div>
+            <div class="file-block-body">
+<span class="line-num">1</span><span class="diff-add">Sallys 1st change</span>
+<span class="line-num">2</span>library line 2
+<span class="line-num">3</span>library line 3
+<span class="line-num">4</span>library line 4
+<span class="line-num">5</span>library line 5
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">cd</span> <span class="string">~/sally</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git commit</span> <span class="flag">-a -m</span> <span class="string">"Sallys 1st changes in our library"</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git push</span>
+<span class="output">! [rejected]   main -> main (non-fast-forward)</span>
+            </div>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon">⚠️</span>
+            <span>Push fails! The remote has Harry's new commits that Sally doesn't have. She needs to pull first.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Pull with rebase, verify, then push.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/sally]$</span> <span class="cmd">git pull</span> <span class="flag">--rebase</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git log</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git diff</span> HEAD^ HEAD  <span class="comment"># see both changes</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git push</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Sync Harry's repo with Sally's latest changes.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">cd</span> <span class="string">~/harry</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git pull</span> <span class="flag">--rebase</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE IV ========== -->
+    <div class="exercise" id="ex4">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-conflict">⚡ Collaboration</div>
+        <h2>Exercise IV — Conflicts (with Rebase)</h2>
+        <p class="exercise-desc">Both developers edit the same line. Learn to resolve merge conflicts during a rebase.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Harry changes the <strong>last line</strong> (line 5) of <code>libs/library.txt</code>, commits, and pushes.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="comment"># Change line 5 to: "another of Harrys changes"</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git commit</span> <span class="flag">-a -m</span> <span class="string">"Harry's 2nd changes in our library"</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Sally changes the <strong>same last line</strong>, commits, and tries to push.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">cd</span> <span class="string">~/sally</span>
+<span class="comment"># Change line 5 to: "Sallys 2nd change.."</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git commit</span> <span class="flag">-a -m</span> <span class="string">"Sally 2nd change in library"</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git push</span>
+<span class="output">! [rejected] — remote has changes you don't have</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Pull with rebase — this time you'll hit a <strong>conflict</strong>.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/sally]$</span> <span class="cmd">git pull</span> <span class="flag">--rebase</span>
+<span class="output">CONFLICT (content): Merge conflict in libs/library.txt</span>
+            </div>
+          </div>
+          <div class="callout callout-danger">
+            <span class="callout-icon">🔥</span>
+            <span>Both developers changed the same line — Git can't auto-merge. You must resolve it manually.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Open the file and resolve the conflict markers.</div>
+          <div class="conflict-block">
+Sally's first change<br>
+Library line 2<br>
+Harry's change here<br>
+Library line 4<br>
+<span class="conflict-marker">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span><br>
+<span class="conflict-ours">Another of Harrys change</span>
+<span class="conflict-marker">=======</span><br>
+<span class="conflict-theirs">Sally 2nd change</span>
+<span class="conflict-marker">&gt;&gt;&gt;&gt;&gt;&gt;&gt; ad9e470 (+Sally 2nd change)</span>
+          </div>
+          <div class="callout callout-tip">
+            <span class="callout-icon">✏️</span>
+            <span>Delete the conflict markers and keep the content you want — one line, both lines, or a rewrite.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Mark the conflict resolved and continue the rebase.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/sally]$</span> <span class="cmd">git add</span> libs/library.txt
+<span class="prompt">~/sally]$</span> <span class="cmd">git status</span>
+<span class="output">rebase in progress; all conflicts fixed: run "git rebase --continue"</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git rebase</span> <span class="flag">--continue</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git log</span> <span class="flag">-p -2</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git push</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE V ========== -->
+    <div class="exercise" id="ex5">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-branch">🏷️ Intermediate</div>
+        <h2>Exercise V — Tagging</h2>
+        <p class="exercise-desc">Create annotated tags to mark releases and sync them across repositories.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Create and push a release tag from Sally's repo.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/sally]$</span> <span class="cmd">git tag</span> Release_01 <span class="flag">-m</span> <span class="string">"Official Release_01 GA"</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git log</span> <span class="flag">--graph --oneline --all</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git push</span> <span class="flag">--tags</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Fetch the tag into Harry's repo.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">cd</span> <span class="string">~/harry</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git log</span> <span class="flag">--graph --oneline --all</span>  <span class="comment"># no tag yet!</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git fetch</span> <span class="flag">--tags</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git log</span> <span class="flag">--graph --oneline --all</span>  <span class="comment"># now you see it</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git rebase</span>
+            </div>
+          </div>
+          <div class="git-graph">
+* <span class="hash">9ec4c94</span> (<span class="head">HEAD → main</span>, <span class="tag">tag: Release_01</span>, <span class="branch-main">origin/main</span>) + Sally 2nd change
+* <span class="hash">9c8fe9e</span> +Another of Harrys change
+* <span class="hash">39da746</span> +Sally's first change
+* <span class="hash">0a09798</span> +Harry's change here
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE VI ========== -->
+    <div class="exercise" id="ex6">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-branch">🔀 Intermediate</div>
+        <h2>Exercise VI — Branching</h2>
+        <p class="exercise-desc">Create a feature branch, push it with upstream tracking, and continue work on main.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Create and check out a bugfix branch.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git branch</span> bugfix/release_01_fix1
+<span class="prompt">~/harry]$</span> <span class="cmd">git checkout</span> bugfix/release_01_fix1
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Make changes to both files, commit, and push with upstream tracking.</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <div class="file-block">
+              <div class="file-block-header"><span class="file-icon">📄</span> main.txt</div>
+              <div class="file-block-body">
+<span class="line-num">1</span>include libs/library.txt
+<span class="line-num">2</span>Hello World <span class="diff-add">*bugfixed*</span>
+              </div>
+            </div>
+            <div class="file-block">
+              <div class="file-block-header"><span class="file-icon">📄</span> libs/library.txt</div>
+              <div class="file-block-body" style="font-size: 0.72rem;">
+<span class="line-num">…</span>...
+<span class="line-num">6</span><span class="diff-add">*bugfixing in lib*</span>
+              </div>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry (bugfix/release_01_fix1)</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git commit</span> <span class="flag">-a -m</span> <span class="string">"bugfixing"</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span> <span class="flag">--set-upstream</span> origin bugfix/release_01_fix1
+<span class="prompt">~/harry]$</span> <span class="cmd">git branch</span> <span class="flag">-vv</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Switch back to main and continue development there too.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git checkout</span> main
+<span class="comment"># Add a line to libs/library.txt: "Further development in master"</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git commit</span> <span class="flag">-a -m</span> <span class="string">"making progress in the main"</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git log</span> <span class="flag">--graph --oneline --branches</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE VII ========== -->
+    <div class="exercise" id="ex7">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-branch">🔗 Intermediate</div>
+        <h2>Exercise VII — Merging</h2>
+        <p class="exercise-desc">Merge the bugfix branch back into main and inspect the results with blame.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Merge the bugfix branch into main.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry (main)</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git status</span>
+<span class="output"># On branch main — working tree clean</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git merge</span> bugfix/release_01_fix1
+<span class="comment"># Save the merge commit message</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Inspect the merge and push.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git log</span> <span class="flag">--graph --oneline --all</span>  <span class="comment"># see the merge</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git blame</span> ./libs/library.txt
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <span class="callout-icon">🔍</span>
+            <span><code>git blame</code> shows who changed each line and when — invaluable for debugging.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE VIII ========== -->
+    <div class="exercise" id="ex8">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-advanced">🍒 Advanced</div>
+        <h2>Exercise VIII — Checkout &amp; Cherry-pick</h2>
+        <p class="exercise-desc">Check out an old commit by tag, create a new branch from it, and cherry-pick a specific commit.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Check out the Release_01 tag (enters detached HEAD).</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git checkout</span> main
+<span class="prompt">~/harry]$</span> <span class="cmd">git log</span> <span class="flag">--decorate</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git checkout</span> Release_01
+<span class="output">Note: checking out 'Release_01'. You are in 'detached HEAD' state.</span>
+            </div>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon">⚠️</span>
+            <span><strong>Detached HEAD</strong> means you're not on any branch. Create a branch if you want to keep new commits!</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Create a new branch from this tag and cherry-pick a commit from main.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git checkout</span> <span class="flag">-b</span> bugfix/release_01_fix2
+<span class="prompt">~/harry]$</span> <span class="cmd">git log</span> main <span class="flag">--decorate --name-only</span>
+<span class="comment"># Copy the SHA1 of "making progress in the main" commit</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git cherry-pick</span> &lt;SHA1&gt;
+<span class="prompt">~/harry]$</span> <span class="cmd">git diff</span> HEAD^ HEAD
+<span class="prompt">~/harry]$</span> <span class="cmd">git log</span> <span class="flag">--graph --oneline --all</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span> <span class="flag">--set-upstream</span> origin
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE IX ========== -->
+    <div class="exercise" id="ex9">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-advanced">⏪ Advanced</div>
+        <h2>Exercise IX — Git Reverts of All Kinds</h2>
+        <p class="exercise-desc">The most important safety net in Git. Learn to undo changes at every level — working dir, staged, committed (local), and pushed (remote).</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction"><strong>Undo working directory changes</strong> — discard uncommitted edits.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry (main)</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git checkout</span> main
+<span class="comment"># Edit main.txt — add "# Add temp line"</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git diff</span>  <span class="comment"># ALWAYS review before discarding!</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git restore</span> main.txt
+            </div>
+          </div>
+          <div class="callout callout-danger">
+            <span class="callout-icon">🚨</span>
+            <span><code>git restore</code> is <strong>irreversible</strong> — the changes are gone forever. Always <code>git diff</code> first.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction"><strong>Undo staged changes</strong> — unstage, then discard.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="comment"># Edit main.txt again, then stage it:</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git add</span> main.txt
+<span class="prompt">~/harry]$</span> <span class="cmd">git diff</span> <span class="flag">--staged</span>  <span class="comment"># review what's staged</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git restore</span> <span class="flag">--staged</span> main.txt  <span class="comment"># unstage</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git restore</span> main.txt  <span class="comment"># discard</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction"><strong>Undo a local commit</strong> — reset to the previous commit.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="comment"># Edit, commit:</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git commit</span> <span class="flag">-a -m</span> <span class="string">"Adding temp line number 3 commit"</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git log</span> <span class="flag">--name-status</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git reset</span> <span class="flag">--hard</span> HEAD^
+<span class="prompt">~/harry]$</span> <span class="cmd">git reflog</span>  <span class="comment"># the commit still exists in reflog!</span>
+            </div>
+          </div>
+          <div class="callout callout-warn">
+            <span class="callout-icon">⚠️</span>
+            <span><code>--hard</code> resets branch, index, <strong>and</strong> working tree. The commit is unreferenced but not deleted — <code>git reflog</code> can find it.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction"><strong>Revert a pushed commit</strong> — safely undo a commit that's already shared.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="comment"># Reset back to the temp commit &amp; push it:</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git reset</span> <span class="flag">--hard</span> &lt;SHA1&gt;
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span>
+<span class="comment"># Now revert it (creates a NEW commit that undoes it):</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git revert</span> HEAD
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span>
+            </div>
+          </div>
+          <div class="callout callout-info">
+            <span class="callout-icon">💡</span>
+            <span><code>git revert</code> is the safe way to undo pushed commits — it creates a <strong>new</strong> commit, preserving history.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction"><strong>Force-replace a remote branch</strong> — reset a branch and force push.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git checkout</span> bugfix/release_01_fix1
+<span class="prompt">~/harry]$</span> <span class="cmd">git reset</span> <span class="flag">--hard</span> HEAD~1
+<span class="comment"># Allow non-fast-forward on the bare repo:</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git</span> <span class="flag">-C</span> ~/git_remote_repo config receive.denyNonFastForwards false
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span> <span class="flag">--force-with-lease</span>
+            </div>
+          </div>
+          <div class="callout callout-danger">
+            <span class="callout-icon">🚨</span>
+            <span><code>--force-with-lease</code> is safer than <code>--force</code> — it checks that no one else pushed in the meantime.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE X ========== -->
+    <div class="exercise" id="ex10">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-advanced">📦 Advanced</div>
+        <h2>Exercise X — Git Stash</h2>
+        <p class="exercise-desc">Stash work-in-progress, fix an urgent bug, then pop your stash back.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Start a regular task, then stash it when an emergency hits.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry (main)</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git checkout</span> main
+<span class="comment"># Edit main.txt — add "Add regular task"</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git stash</span>
+<span class="output">Saved working directory and index state WIP on main: ...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Do the emergency fix and commit it.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="comment"># Edit main.txt — add "Add quick fix immediately" as first line</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git commit</span> <span class="flag">-a -m</span> <span class="string">"Fix a bug in a quick"</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Pop your stash and continue where you left off.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/harry]$</span> <span class="cmd">git stash pop</span>
+<span class="output">Auto-merging main.txt</span>
+<span class="comment"># Resolve conflicts if any, then continue:</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git diff</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git commit</span> <span class="flag">-a -m</span> <span class="string">"Regular task"</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git push</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE XI ========== -->
+    <div class="exercise" id="ex11">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-advanced">🩹 Advanced</div>
+        <h2>Exercise XI — Format &amp; Apply Patch</h2>
+        <p class="exercise-desc">Create a patch file from a commit and apply it in another repository — useful for sharing changes without push access.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Add a line to Harry's library, commit, and format a patch.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/harry/libs</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">cd</span> <span class="string">~/harry/libs</span>
+<span class="comment"># Add "patch line" to the end of library.txt</span>
+<span class="prompt">~/harry]$</span> <span class="cmd">git commit</span> <span class="flag">-am</span> <span class="string">"harrys commit for patch"</span>
+<span class="prompt">~/harry/libs]$</span> <span class="cmd">git format-patch</span> <span class="flag">-1</span> main
+<span class="output">0001-harry-s-commit-for-patch.patch</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">In Sally's repo, check and apply the patch.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally/libs</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">cd</span> <span class="string">~/sally/libs</span>
+<span class="prompt">~/sally/libs]$</span> <span class="cmd">git pull</span>
+<span class="prompt">~/sally/libs]$</span> <span class="cmd">git apply</span> <span class="flag">--stat</span> ~/harry/libs/0001-*.patch
+<span class="prompt">~/sally/libs]$</span> <span class="cmd">git apply</span> <span class="flag">--check</span> ~/harry/libs/0001-*.patch
+<span class="prompt">~/sally/libs]$</span> <span class="cmd">git am</span> <span class="flag">--signoff</span> &lt; ~/harry/libs/0001-*.patch
+<span class="output">Applying: harry's commit for patch</span>
+            </div>
+          </div>
+          <div class="callout callout-tip">
+            <span class="callout-icon">✅</span>
+            <span><code>--signoff</code> adds a "Signed-off-by" line — useful for tracking who approved/applied the patch.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE XII ========== -->
+    <div class="exercise" id="ex12">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-advanced">🔬 Advanced</div>
+        <h2>Exercise XII — Squash Commits</h2>
+        <p class="exercise-desc">Use interactive rebase to squash multiple commits into one clean commit.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">In Sally's repo, make 2 small commits that you want to combine.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="comment"># Make 2 changes with 2 separate commits</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git log</span> <span class="flag">--pretty=oneline -3</span>
+<span class="output">9fb9d06 Add 2nd commit for squash</span>
+<span class="output">5822495 Add 1st commit line</span>
+<span class="output">d3eb9fd harry's commit for patch</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Run interactive rebase and squash the second commit into the first.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/sally]$</span> <span class="cmd">git rebase</span> <span class="flag">-i</span> HEAD^^
+            </div>
+          </div>
+          <div class="file-block">
+            <div class="file-block-header"><span class="file-icon">📝</span> Interactive rebase editor</div>
+            <div class="file-block-body">
+<span style="color:var(--green)">pick</span> 5822495 Add 1st commit line
+<span style="color:var(--yellow)">s</span>    9fb9d06 Add 2nd commit for squash  <span class="comment" style="color:var(--text-muted)"># change "pick" → "s" (squash)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Save the combined commit message, verify, and push.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="output">Successfully rebased and updated refs/heads/main.</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git log</span> <span class="flag">-p -2</span>  <span class="comment"># now 1 commit instead of 2</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git reflog</span>  <span class="comment"># old commits are still in reflog</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git push</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- ========== EXERCISE XIII ========== -->
+    <div class="exercise" id="ex13">
+      <div class="exercise-header">
+        <div class="exercise-tag tag-advanced">🌐 Advanced</div>
+        <h2>Exercise XIII — Fetch from Another Repo</h2>
+        <p class="exercise-desc">Fetch a branch directly from another developer's local repo — no origin needed.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">From Sally's repo, fetch Harry's bugfix branch directly.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/sally]$</span> <span class="cmd">git branch</span>
+<span class="output">* main</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git branch</span> <span class="flag">-r</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git fetch</span> ~/harry bugfix/release_01_fix1:bugfix/release_01_fix1
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-dot"></div>
+          <div class="step-instruction">Verify the fetched branch matches.</div>
+          <div class="terminal">
+            <div class="terminal-header">
+              <div class="terminal-dots"><span></span><span></span><span></span></div>
+              <div class="terminal-title">~/sally</div>
+              <button class="terminal-copy" onclick="copyCmd(this)">Copy</button>
+            </div>
+            <div class="terminal-body">
+<span class="prompt">~/sally]$</span> <span class="cmd">git log</span> <span class="flag">-1 --oneline</span> bugfix/release_01_fix1
+<span class="prompt">~/sally]$</span> <span class="cmd">git</span> <span class="flag">-C</span> ~/harry <span class="cmd">log</span> <span class="flag">-1 --oneline</span> bugfix/release_01_fix1
+<span class="comment"># Both should show the same commit hash</span>
+<span class="prompt">~/sally]$</span> <span class="cmd">git checkout</span> bugfix/release_01_fix1
+<span class="prompt">~/sally]$</span> <span class="cmd">git branch</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div style="text-align: center; padding: 4rem 0 2rem; border-top: 1px solid var(--border); margin-top: 4rem;">
+      <div style="font-size: 2rem; margin-bottom: 0.75rem;">🎉</div>
+      <h3 style="font-weight: 800; font-size: 1.4rem; margin-bottom: 0.5rem;">Training Complete!</h3>
+      <p style="color: var(--text-dim); max-width: 400px; margin: 0 auto; font-size: 0.9rem;">You've covered the Git essentials — from basic commits to advanced rebasing. Keep practicing these workflows and they'll become second nature.</p>
+      <a href="#hero" class="btn btn-secondary" style="margin-top: 1.5rem;">↑ Back to top</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Back to top -->
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// Copy command
+function copyCmd(btn) {
+  const body = btn.closest('.terminal').querySelector('.terminal-body');
+  const lines = body.querySelectorAll('.cmd, .flag, .string');
+  let text = body.innerText;
+  // Clean up for clipboard
+  text = text.replace(/^\$\s*/gm, '').replace(/^~\/[^\]]*\]\$\s*/gm, '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 1500);
+  });
+}
+
+// Sidebar active state on scroll
+const exercises = document.querySelectorAll('.exercise');
+const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      sidebarLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.sidebar-link[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
+      
+      // Update progress
+      const idx = Array.from(exercises).indexOf(entry.target);
+      const pct = Math.round(((idx + 1) / exercises.length) * 100);
+      document.querySelector('.progress-bar-fill').style.width = pct + '%';
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-100px 0px' });
+
+exercises.forEach(ex => observer.observe(ex));
+
+// Back to top visibility
+window.addEventListener('scroll', () => {
+  document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 800);
+});
+
+// Smooth scroll for sidebar links
+sidebarLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>
