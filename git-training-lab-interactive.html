@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git Training Lab — Interactive</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Satoshi:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg: #0a0a0b;
+  --surface: #111113;
+  --surface-2: #19191d;
+  --surface-3: #222228;
+  --border: #2a2a32;
+  --border-light: #35354a;
+  --text: #e8e8ed;
+  --text-dim: #8888a0;
+  --text-muted: #55556a;
+  --accent: #f97316;
+  --accent-dim: #f9731622;
+  --green: #22c55e;
+  --green-dim: #22c55e18;
+  --blue: #3b82f6;
+  --blue-dim: #3b82f618;
+  --purple: #a855f7;
+  --purple-dim: #a855f718;
+  --red: #ef4444;
+  --red-dim: #ef444418;
+  --yellow: #eab308;
+  --yellow-dim: #eab30818;
+  --cyan: #06b6d4;
+  --terminal-bg: #0c0c0e;
+  --terminal-border: #1e1e26;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Satoshi',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;}
+::selection{background:var(--accent);color:var(--bg);}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:2rem;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;opacity:.15;mask-image:radial-gradient(ellipse 70% 60% at 50% 50%,black,transparent);}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,var(--accent) 0%,transparent 70%);opacity:.06;top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse 6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.06;}50%{transform:translate(-50%,-50%) scale(1.15);opacity:.09;}}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:var(--surface-2);border:1px solid var(--border);border-radius:100px;font-size:.8rem;color:var(--text-dim);font-weight:500;letter-spacing:.03em;margin-bottom:2rem;animation:fadeInDown .8s ease;z-index:1;}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{font-size:clamp(3rem,8vw,5.5rem);font-weight:900;letter-spacing:-.04em;line-height:1.05;text-align:center;z-index:1;animation:fadeInUp .8s ease;}
+.hero h1 .gradient{background:linear-gradient(135deg,var(--accent) 0%,#fb923c 50%,var(--yellow) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:1.15rem;color:var(--text-dim);max-width:560px;text-align:center;margin-top:1.5rem;z-index:1;animation:fadeInUp .8s ease .15s both;}
+.hero-cta{display:flex;gap:1rem;margin-top:2.5rem;z-index:1;animation:fadeInUp .8s ease .3s both;flex-wrap:wrap;justify-content:center;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:var(--radius-sm);font-family:inherit;font-weight:600;font-size:.9rem;cursor:pointer;border:none;transition:all .2s;text-decoration:none;}
+.btn-primary{background:var(--accent);color:var(--bg);}
+.btn-primary:hover{background:#fb923c;transform:translateY(-1px);box-shadow:0 8px 30px var(--accent-dim);}
+.btn-secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--border-light);background:var(--surface-3);}
+.hero-stats{display:flex;gap:3rem;margin-top:4rem;z-index:1;animation:fadeInUp .8s ease .45s both;}
+.hero-stat{text-align:center;}
+.hero-stat .num{font-size:1.8rem;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--text);}
+.hero-stat .label{font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px;}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:280px 1fr;min-height:100vh;}
+@media(max-width:900px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--border);background:var(--surface);padding:1.5rem 0;z-index:10;display:flex;flex-direction:column;}
+.sidebar-logo{padding:0 1.5rem 1.5rem;display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem;border-bottom:1px solid var(--border);margin-bottom:1rem;}
+.sidebar-logo svg{width:24px;height:24px;color:var(--accent);}
+.sidebar-section{padding:.5rem 1rem;}
+.sidebar-section-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-muted);padding:.5rem;font-weight:600;}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius-sm);font-size:.82rem;color:var(--text-dim);cursor:pointer;transition:all .15s;text-decoration:none;position:relative;}
+.sidebar-link:hover{background:var(--surface-2);color:var(--text);}
+.sidebar-link.active{background:var(--accent-dim);color:var(--accent);}
+.sidebar-link .exercise-num{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:var(--surface-3);color:var(--text-dim);flex-shrink:0;}
+.sidebar-link.active .exercise-num{background:var(--accent);color:var(--bg);}
+.sidebar-link.completed .exercise-num{background:var(--green-dim);color:var(--green);}
+.sidebar-link.completed::after{content:'✓';position:absolute;right:12px;font-size:.7rem;color:var(--green);}
+.sidebar-progress{padding:1rem 1.5rem;border-top:1px solid var(--border);margin-top:auto;}
+.progress-bar-bg{height:4px;background:var(--surface-3);border-radius:2px;overflow:hidden;margin-top:8px;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--yellow));border-radius:2px;transition:width .5s ease;}
+.progress-label{font-size:.7rem;color:var(--text-muted);font-weight:500;}
+.progress-count{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-dim);float:right;}
+
+/* MAIN */
+.main-content{padding:3rem;max-width:880px;margin:0 auto;width:100%;}
+@media(max-width:600px){.main-content{padding:1.5rem;}}
+.exercise{margin-bottom:5rem;}
+.exercise-header{margin-bottom:2rem;}
+.exercise-tag{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;padding:4px 10px;border-radius:6px;margin-bottom:.75rem;}
+.tag-basics{background:var(--green-dim);color:var(--green);}
+.tag-teamwork{background:var(--blue-dim);color:var(--blue);}
+.tag-conflict{background:var(--red-dim);color:var(--red);}
+.tag-branch{background:var(--purple-dim);color:var(--purple);}
+.tag-advanced{background:var(--yellow-dim);color:var(--yellow);}
+.exercise h2{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;line-height:1.2;}
+.exercise-desc{color:var(--text-dim);margin-top:.5rem;font-size:.95rem;}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:1.5rem;}
+.step{position:relative;padding-left:2.5rem;}
+.step::before{content:'';position:absolute;left:11px;top:30px;bottom:-24px;width:1px;background:var(--border);}
+.step:last-child::before{display:none;}
+.step-dot{position:absolute;left:4px;top:6px;width:16px;height:16px;border-radius:50%;border:2px solid var(--border);background:var(--surface);z-index:1;transition:all .3s;}
+.step.done .step-dot{border-color:var(--green);background:var(--green);}
+.step.current .step-dot{border-color:var(--accent);background:var(--accent);box-shadow:0 0 12px var(--accent-dim);}
+@keyframes stepPop{0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1);}}
+.step.just-done .step-dot{animation:stepPop .4s ease;}
+.step-instruction{font-size:.9rem;color:var(--text-dim);margin-bottom:.5rem;font-weight:500;}
+.step-instruction code{font-family:'JetBrains Mono',monospace;font-size:.8rem;background:var(--surface-3);padding:1px 5px;border-radius:4px;color:var(--text);}
+
+/* CALLOUTS */
+.callout{padding:1rem 1.25rem;border-radius:var(--radius);margin:.75rem 0;font-size:.85rem;display:flex;gap:10px;align-items:flex-start;}
+.callout-info{background:var(--blue-dim);border:1px solid #3b82f622;color:var(--blue);}
+.callout-warn{background:var(--yellow-dim);border:1px solid #eab30822;color:var(--yellow);}
+.callout-danger{background:var(--red-dim);border:1px solid #ef444422;color:var(--red);}
+.callout-tip{background:var(--green-dim);border:1px solid #22c55e22;color:var(--green);}
+
+/* FILE BLOCKS */
+.file-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;}
+.file-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:.5rem 0;}
+.file-block-header{display:flex;align-items:center;gap:8px;padding:8px 14px;background:var(--surface-3);border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-dim);font-weight:500;}
+.file-block-body{padding:12px 18px;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.8;color:var(--text);white-space:pre;}
+
+/* CUSTOM TERMINAL */
+.cterm{background:var(--terminal-bg);border:1px solid var(--terminal-border);border-radius:var(--radius);overflow:hidden;margin-top:1.5rem;transition:border-color .3s,box-shadow .3s;}
+.cterm.active{border-color:var(--accent);box-shadow:0 0 20px var(--accent-dim);}
+.cterm.completed{border-color:var(--green);}
+.cterm-header{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:var(--surface-2);border-bottom:1px solid var(--terminal-border);}
+.cterm-dots{display:flex;gap:6px;}
+.cterm-dots span{width:10px;height:10px;border-radius:50%;}
+.cterm-dots span:nth-child(1){background:#ef4444;}
+.cterm-dots span:nth-child(2){background:#eab308;}
+.cterm-dots span:nth-child(3){background:#22c55e;}
+.cterm-title{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text-muted);}
+.cterm-status{font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:2px 8px;border-radius:4px;}
+.st-waiting{background:var(--surface-3);color:var(--text-muted);}
+.st-active{background:var(--accent-dim);color:var(--accent);}
+.st-done{background:var(--green-dim);color:var(--green);}
+.cterm-body{height:260px;overflow-y:auto;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:1.7;cursor:text;position:relative;}
+.cterm-body::-webkit-scrollbar{width:4px;}
+.cterm-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.cterm-body:focus{outline:none;}
+.cterm-body .line{white-space:pre-wrap;word-break:break-all;}
+.cterm-body .line-output{color:var(--text-dim);}
+.cterm-body .line-error{color:var(--red);}
+.cterm-body .line-success{color:var(--green);}
+.cterm-body .line-hint{color:var(--yellow);}
+.cterm-body .line-info{color:var(--text-muted);}
+.cterm-body .prompt{color:var(--green);}
+.cterm-body .input-line{display:flex;align-items:center;flex-wrap:wrap;}
+.cterm-body .input-text{color:var(--text);outline:none;caret-color:var(--accent);background:transparent;border:none;font:inherit;flex:1;min-width:60px;padding:0;margin:0;line-height:inherit;}
+.cterm-body .input-text::selection{background:var(--accent);color:var(--bg);}
+.cterm-body .cursor-blink{display:inline-block;width:8px;height:1.1em;background:var(--accent);animation:cursorBlink 1s step-end infinite;vertical-align:text-bottom;margin-left:1px;}
+@keyframes cursorBlink{0%,100%{opacity:1;}50%{opacity:0;}}
+.cterm-hint{padding:6px 14px;background:var(--surface-2);border-top:1px solid var(--terminal-border);font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--text-muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cterm-hint kbd{font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:1px 5px;background:var(--surface-3);border:1px solid var(--border);border-radius:3px;color:var(--text-dim);}
+
+.section-divider{border:none;border-top:1px solid var(--border);margin:4rem 0;}
+.footer-section{text-align:center;padding:4rem 0 2rem;border-top:1px solid var(--border);margin-top:4rem;}
+.back-to-top{position:fixed;bottom:2rem;right:2rem;width:40px;height:40px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;opacity:0;pointer-events:none;z-index:50;font-size:1rem;}
+.back-to-top.visible{opacity:1;pointer-events:all;}
+.back-to-top:hover{border-color:var(--accent);color:var(--accent);}
+</style>
+</head>
+<body>
+
+<section class="hero" id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><span class="dot"></span> Interactive Hands-on Lab</div>
+  <h1>Learn <span class="gradient">Git</span> by doing.</h1>
+  <p class="hero-sub">A progressive training lab with an embedded terminal. Type real Git commands and build muscle memory — no setup required.</p>
+  <div class="hero-cta">
+    <a href="#exercises" class="btn btn-primary" onclick="event.preventDefault();document.getElementById('exercises').scrollIntoView({behavior:'smooth'})">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M13 5l7 7-7 7M5 12h14"/></svg>
+      Start Training
+    </a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="num">13</div><div class="label">Exercises</div></div>
+    <div class="hero-stat"><div class="num">~2h</div><div class="label">Duration</div></div>
+    <div class="hero-stat"><div class="num">50+</div><div class="label">Commands</div></div>
+  </div>
+</section>
+
+<div class="layout" id="exercises">
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 3v6m0 6v6"/></svg>
+      Git Training Lab
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Getting Started</div>
+      <a href="#ex1" class="sidebar-link active" data-ex="ex1"><span class="exercise-num">I</span>Adding Files</a>
+      <a href="#ex2" class="sidebar-link" data-ex="ex2"><span class="exercise-num">II</span>Restructuring</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Collaboration</div>
+      <a href="#ex3" class="sidebar-link" data-ex="ex3"><span class="exercise-num">III</span>Teamwork</a>
+      <a href="#ex4" class="sidebar-link" data-ex="ex4"><span class="exercise-num">IV</span>Conflicts</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Intermediate</div>
+      <a href="#ex5" class="sidebar-link" data-ex="ex5"><span class="exercise-num">V</span>Tagging</a>
+      <a href="#ex6" class="sidebar-link" data-ex="ex6"><span class="exercise-num">VI</span>Branching</a>
+      <a href="#ex7" class="sidebar-link" data-ex="ex7"><span class="exercise-num">VII</span>Merging</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Advanced</div>
+      <a href="#ex8" class="sidebar-link" data-ex="ex8"><span class="exercise-num">VIII</span>Cherry-pick</a>
+      <a href="#ex9" class="sidebar-link" data-ex="ex9"><span class="exercise-num">IX</span>Reverts</a>
+      <a href="#ex10" class="sidebar-link" data-ex="ex10"><span class="exercise-num">X</span>Stash</a>
+      <a href="#ex11" class="sidebar-link" data-ex="ex11"><span class="exercise-num">XI</span>Patches</a>
+      <a href="#ex12" class="sidebar-link" data-ex="ex12"><span class="exercise-num">XII</span>Squash</a>
+      <a href="#ex13" class="sidebar-link" data-ex="ex13"><span class="exercise-num">XIII</span>Cross-repo Fetch</a>
+    </div>
+    <div class="sidebar-progress">
+      <div class="progress-label">Progress <span class="progress-count" id="progressCount">0 / 13</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+  </nav>
+  <div class="main-content" id="mainContent"></div>
+</div>
+
+<button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ===================== EXERCISE DATA =====================
+const EXERCISES=[
+{id:'ex1',tag:'tag-basics',tagLabel:'🌱 Getting Started',title:'Exercise I — Adding Files',desc:'Set up your identity, create a bare remote repo, clone it, and make your first commit.',steps:[
+{instruction:'Configure your Git identity and set the default branch name.',cwd:'~',commands:[
+{cmd:'git config --global user.name "YourUSERNAME"',output:'',match:/^git config --global user\.name\s+.+/},
+{cmd:'git config --global user.email "YourEMAIL"',output:'',match:/^git config --global user\.email\s+.+/},
+{cmd:'git config --global init.defaultBranch main',output:'',match:/^git config --global init\.defaultBranch main$/},
+],hint:'Type: git config --global user.name "YourName"'},
+{instruction:'Create a bare shared repository to act as the remote origin.',cwd:'~',commands:[
+{cmd:'git init --bare --shared ~/git_remote_repo',output:'Initialized empty shared Git repository in /home/user/git_remote_repo/',match:/^git init --bare\s*(--shared\s*)?~\/git_remote_repo$/},
+],callout:{type:'info',icon:'💡',text:'A <strong>bare</strong> repo has no working directory — just the .git internals. Perfect for a shared central server.'},hint:'Type: git init --bare --shared ~/git_remote_repo'},
+{instruction:'Clone the remote into Harry\'s workspace.',cwd:'~',commands:[
+{cmd:'git clone ~/git_remote_repo ~/harry',output:"Cloning into '/home/user/harry'...\nwarning: You appear to have cloned an empty repository.\ndone.",match:/^git clone ~\/git_remote_repo ~\/harry$/},
+{cmd:'cd ~/harry',output:'',match:/^cd ~\/harry$/},
+],hint:'Type: git clone ~/git_remote_repo ~/harry'},
+{instruction:'Create two files: <code>main_e.txt</code> and <code>library.txt</code> with the content shown.',cwd:'~/harry',files:[
+{name:'main_e.txt',content:'1  include library.txt\n2  Hello World'},
+{name:'library.txt',content:'1  library line 1\n2  library line 2\n3  library line 3\n4  library line 4\n5  library line 5'}
+],commands:[
+{cmd:'vi main_e.txt',output:'(file created: main_e.txt)',match:/^(vi|vim|nano|code|cat\s*>|touch)\s+main_e\.txt/},
+{cmd:'vi library.txt',output:'(file created: library.txt)',match:/^(vi|vim|nano|code|cat\s*>|touch)\s+library\.txt/},
+],hint:'Create both files, e.g: vi main_e.txt'},
+{instruction:'Stage all files, check status, and commit as "Initial project".',cwd:'~/harry',commands:[
+{cmd:'git add *',output:'',match:/^git add (\*|\.)$/},
+{cmd:'git status',output:"On branch main\n\nNo commits yet\n\nChanges to be committed:\n\tnew file:   library.txt\n\tnew file:   main_e.txt",match:/^git status$/},
+{cmd:'git commit -m "Initial project"',output:"[main (root-commit) a1b2c3d] Initial project\n 2 files changed, 7 insertions(+)\n create mode 100644 library.txt\n create mode 100644 main_e.txt",match:/^git commit\s+-m\s+["']Initial project["']$/},
+],hint:'Type: git add *'},
+]},
+{id:'ex2',tag:'tag-basics',tagLabel:'📁 Getting Started',title:'Exercise II — Restructuring Files',desc:'Rename and reorganize files using <code>git mv</code>, then push to the remote.',steps:[
+{instruction:'Rename <code>main_e.txt</code> → <code>main.txt</code>, create <code>libs/</code>, move <code>library.txt</code> into it.',cwd:'~/harry',commands:[
+{cmd:'git mv main_e.txt main.txt',output:'',match:/^git mv main_e\.txt main\.txt$/},
+{cmd:'mkdir libs',output:'',match:/^mkdir libs$/},
+{cmd:'git mv library.txt libs',output:'',match:/^git mv library\.txt libs\/?$/},
+],hint:'Type: git mv main_e.txt main.txt'},
+{instruction:'Edit <code>main.txt</code> to update the include path, then stage.',cwd:'~/harry',commands:[
+{cmd:'vi main.txt',output:'(changed "include library.txt" → "include libs/library.txt")',match:/^(vi|vim|nano|code)\s+main\.txt$/},
+{cmd:'git add -u',output:'',match:/^git add -u$/},
+],hint:'Type: vi main.txt  then: git add -u'},
+{instruction:'Review, commit as "Restructuring project", and push.',cwd:'~/harry',commands:[
+{cmd:'git status',output:"On branch main\nChanges to be committed:\n\trenamed:    library.txt -> libs/library.txt\n\tnew file:   main.txt\n\tdeleted:    main_e.txt",match:/^git status$/},
+{cmd:'git diff --staged main.txt',output:"diff --git a/main.txt b/main.txt\n+++ b/main.txt\n@@ -0,0 +1,2 @@\n+include libs/library.txt\n+Hello World",match:/^git diff --staged\s+main\.txt$/},
+{cmd:'git commit -m "Restructuring project"',output:"[main e4f5g6h] Restructuring project\n 3 files changed, 2 insertions(+), 2 deletions(-)",match:/^git commit\s+-m\s+["']Restructuring project["']$/},
+{cmd:'git push',output:"Counting objects: 7, done.\nWriting objects: 100% (5/5), 443 bytes, done.\nTo ~/git_remote_repo\n   a1b2c3d..e4f5g6h  main -> main",match:/^git push$/},
+],callout:{type:'tip',icon:'✅',text:'Always use <code>git diff --staged</code> before committing.'},hint:'Type: git status'},
+]},
+{id:'ex3',tag:'tag-teamwork',tagLabel:'👥 Collaboration',title:'Exercise III — Teamwork',desc:'Two developers (Harry & Sally) on the same repo. Learn push/pull with rebase.',steps:[
+{instruction:'In Harry\'s repo, change line 3 of <code>libs/library.txt</code> and commit.',cwd:'~/harry',commands:[
+{cmd:'vi libs/library.txt',output:'(changed line 3 to: Harrys change *here*)',match:/^(vi|vim|nano|code)\s+(libs\/)?library\.txt$/},
+{cmd:'git commit -a -m "Harrys 1st changes in our library"',output:"[main i7j8k9l] Harrys 1st changes in our library\n 1 file changed, 1 insertion(+), 1 deletion(-)",match:/^git commit\s+-a\s+-m\s+["']Harrys 1st changes.*["']$/},
+],hint:'Type: vi libs/library.txt'},
+{instruction:'Clone for Sally <em>before</em> pushing Harry\'s work, then push.',cwd:'~/harry',commands:[
+{cmd:'git clone ~/git_remote_repo ~/sally',output:"Cloning into '/home/user/sally'...\ndone.",match:/^git clone ~\/git_remote_repo ~\/sally$/},
+{cmd:'git push',output:"To ~/git_remote_repo\n   e4f5g6h..i7j8k9l  main -> main",match:/^git push$/},
+],callout:{type:'info',icon:'💡',text:'Sally cloned <strong>before</strong> Harry pushed — she won\'t have his latest commit.'},hint:'Type: git clone ~/git_remote_repo ~/sally'},
+{instruction:'In Sally\'s repo, change line 1, commit, and try to push.',cwd:'~/sally',commands:[
+{cmd:'cd ~/sally',output:'',match:/^cd ~\/sally$/},
+{cmd:'vi libs/library.txt',output:'(changed line 1 to: Sallys 1st change)',match:/^(vi|vim|nano|code)\s+(libs\/)?library\.txt$/},
+{cmd:'git commit -a -m "Sallys 1st changes in our library"',output:"[main m1n2o3p] Sallys 1st changes in our library\n 1 file changed, 1 insertion(+), 1 deletion(-)",match:/^git commit\s+-a\s+-m\s+["']Sallys 1st changes.*["']$/},
+{cmd:'git push',output:"! [rejected]   main -> main (fetch first)\nerror: failed to push some refs to '~/git_remote_repo'\nhint: Updates were rejected because the remote contains work you don't have.",match:/^git push$/},
+],callout:{type:'warn',icon:'⚠️',text:'Push rejected! Remote has Harry\'s commits. Sally needs to pull first.'},hint:'Type: cd ~/sally'},
+{instruction:'Pull with rebase, then push successfully.',cwd:'~/sally',commands:[
+{cmd:'git pull --rebase',output:"Successfully rebased and updated refs/heads/main.",match:/^git pull\s+--rebase$/},
+{cmd:'git push',output:"To ~/git_remote_repo\n   i7j8k9l..q4r5s6t  main -> main",match:/^git push$/},
+],hint:'Type: git pull --rebase'},
+{instruction:'Sync Harry\'s repo.',cwd:'~/harry',commands:[
+{cmd:'cd ~/harry',output:'',match:/^cd ~\/harry$/},
+{cmd:'git pull --rebase',output:"Successfully rebased and updated refs/heads/main.",match:/^git pull\s+--rebase$/},
+],hint:'Type: cd ~/harry'},
+]},
+{id:'ex4',tag:'tag-conflict',tagLabel:'⚡ Conflicts',title:'Exercise IV — Conflicts (with Rebase)',desc:'Both developers edit the same line. Resolve merge conflicts during rebase.',steps:[
+{instruction:'Harry changes line 5, commits and pushes.',cwd:'~/harry',commands:[
+{cmd:'vi libs/library.txt',output:'(changed line 5 to: another of Harrys changes)',match:/^(vi|vim|nano|code)\s+(libs\/)?library\.txt$/},
+{cmd:'git commit -a -m "Harry\'s 2nd changes in our library"',output:"[main u7v8w9x] Harry's 2nd changes in our library",match:/^git commit\s+-a\s+-m\s+["']Harry.?s 2nd changes.*["']$/},
+{cmd:'git push',output:"To ~/git_remote_repo\n   q4r5s6t..u7v8w9x  main -> main",match:/^git push$/},
+],hint:'Type: vi libs/library.txt'},
+{instruction:'Sally changes the same line 5, commits, push fails.',cwd:'~/sally',commands:[
+{cmd:'cd ~/sally',output:'',match:/^cd ~\/sally$/},
+{cmd:'vi libs/library.txt',output:'(changed line 5 to: Sallys 2nd change..)',match:/^(vi|vim|nano|code)\s+(libs\/)?library\.txt$/},
+{cmd:'git commit -a -m "Sally 2nd change in library"',output:"[main y1z2a3b] Sally 2nd change in library",match:/^git commit\s+-a\s+-m\s+["']Sally 2nd change.*["']$/},
+{cmd:'git push',output:"! [rejected]   main -> main (fetch first)\nerror: failed to push some refs",match:/^git push$/},
+],hint:'Type: cd ~/sally'},
+{instruction:'Pull with rebase — conflict! Resolve, continue rebase, push.',cwd:'~/sally',commands:[
+{cmd:'git pull --rebase',output:"Auto-merging libs/library.txt\nCONFLICT (content): Merge conflict in libs/library.txt\nhint: Resolve conflicts, then \"git add\" and \"git rebase --continue\".",match:/^git pull\s+--rebase$/},
+{cmd:'vi libs/library.txt',output:'(resolved conflict — kept both changes)',match:/^(vi|vim|nano|code)\s+(libs\/)?library\.txt$/},
+{cmd:'git add libs/library.txt',output:'',match:/^git add libs\/library\.txt$/},
+{cmd:'git rebase --continue',output:"[detached HEAD c4d5e6f] Sally 2nd change in library\nSuccessfully rebased and updated refs/heads/main.",match:/^git rebase --continue$/},
+{cmd:'git push',output:"To ~/git_remote_repo\n   u7v8w9x..c4d5e6f  main -> main",match:/^git push$/},
+],callout:{type:'danger',icon:'🔥',text:'Both changed the same line — resolve manually, <code>git add</code>, then <code>git rebase --continue</code>.'},hint:'Type: git pull --rebase'},
+]},
+{id:'ex5',tag:'tag-branch',tagLabel:'🏷️ Intermediate',title:'Exercise V — Tagging',desc:'Create annotated tags to mark releases and sync across repos.',steps:[
+{instruction:'Create and push a release tag from Sally\'s repo.',cwd:'~/sally',commands:[
+{cmd:'git tag Release_01 -m "Official Release_01 GA"',output:'',match:/^git tag Release_01\s+-m\s+["'].*["']$/},
+{cmd:'git log --graph --oneline --all',output:"* c4d5e6f (HEAD -> main, tag: Release_01, origin/main) Sally 2nd change\n* u7v8w9x Harry's 2nd changes\n* q4r5s6t Sallys 1st changes\n* i7j8k9l Harrys 1st changes\n* e4f5g6h Restructuring project\n* a1b2c3d Initial project",match:/^git log\s+--graph\s+--oneline\s+--all$/},
+{cmd:'git push --tags',output:"To ~/git_remote_repo\n * [new tag]  Release_01 -> Release_01",match:/^git push\s+--tags$/},
+],hint:'Type: git tag Release_01 -m "Official Release_01 GA"'},
+{instruction:'Fetch the tag into Harry\'s repo.',cwd:'~/harry',commands:[
+{cmd:'cd ~/harry',output:'',match:/^cd ~\/harry$/},
+{cmd:'git fetch --tags',output:"From ~/git_remote_repo\n * [new tag]  Release_01 -> Release_01",match:/^git fetch\s+--tags$/},
+{cmd:'git log --graph --oneline --all',output:"* c4d5e6f (HEAD -> main, tag: Release_01, origin/main) Sally 2nd change\n* u7v8w9x Harry's 2nd changes\n...",match:/^git log\s+--graph\s+--oneline\s+--all$/},
+],hint:'Type: cd ~/harry'},
+]},
+{id:'ex6',tag:'tag-branch',tagLabel:'🔀 Intermediate',title:'Exercise VI — Branching',desc:'Create a feature branch, push with upstream tracking, work on main in parallel.',steps:[
+{instruction:'Create and check out a bugfix branch.',cwd:'~/harry',commands:[
+{cmd:'git branch bugfix/release_01_fix1',output:'',match:/^git branch bugfix\/release_01_fix1$/},
+{cmd:'git checkout bugfix/release_01_fix1',output:"Switched to branch 'bugfix/release_01_fix1'",match:/^git checkout bugfix\/release_01_fix1$/},
+],hint:'Type: git branch bugfix/release_01_fix1'},
+{instruction:'Edit files, commit and push with upstream.',cwd:'~/harry',commands:[
+{cmd:'vi main.txt',output:'(added "*bugfixed*")',match:/^(vi|vim|nano|code)\s+main\.txt$/},
+{cmd:'vi libs/library.txt',output:'(added "*bugfixing in lib*")',match:/^(vi|vim|nano|code)\s+(libs\/)?library\.txt$/},
+{cmd:'git commit -a -m "bugfixing"',output:"[bugfix/release_01_fix1 afae908] bugfixing\n 2 files changed, 2 insertions(+)",match:/^git commit\s+-a\s+-m\s+["']bugfixing["']$/},
+{cmd:'git push --set-upstream origin bugfix/release_01_fix1',output:"To ~/git_remote_repo\n * [new branch] bugfix/release_01_fix1 -> bugfix/release_01_fix1\nbranch set up to track 'origin/bugfix/release_01_fix1'.",match:/^git push\s+--set-upstream\s+origin\s+bugfix\/release_01_fix1$/},
+],hint:'Type: vi main.txt'},
+{instruction:'Switch to main, add changes, commit and push.',cwd:'~/harry',commands:[
+{cmd:'git checkout main',output:"Switched to branch 'main'",match:/^git checkout main$/},
+{cmd:'vi libs/library.txt',output:'(added "Further development in master")',match:/^(vi|vim|nano|code)\s+(libs\/)?library\.txt$/},
+{cmd:'git commit -a -m "making progress in the main"',output:"[main 2a0a04e] making progress in the main",match:/^git commit\s+-a\s+-m\s+["']making progress.*["']$/},
+{cmd:'git log --graph --oneline --branches',output:"* 2a0a04e (HEAD -> main) making progress in the main\n| * afae908 (bugfix/release_01_fix1) bugfixing\n|/\n* c4d5e6f (tag: Release_01) Sally 2nd change",match:/^git log\s+--graph\s+--oneline\s+--branches$/},
+{cmd:'git push',output:"To ~/git_remote_repo\n   c4d5e6f..2a0a04e  main -> main",match:/^git push$/},
+],hint:'Type: git checkout main'},
+]},
+{id:'ex7',tag:'tag-branch',tagLabel:'🔗 Intermediate',title:'Exercise VII — Merging',desc:'Merge the bugfix branch into main and inspect with blame.',steps:[
+{instruction:'Merge bugfix branch into main.',cwd:'~/harry',commands:[
+{cmd:'git merge bugfix/release_01_fix1',output:"Merge made by the 'ort' strategy.\n libs/library.txt | 1 +\n main.txt         | 2 +-\n 2 files changed, 2 insertions(+), 1 deletion(-)",match:/^git merge bugfix\/release_01_fix1$/},
+],hint:'Type: git merge bugfix/release_01_fix1'},
+{instruction:'Inspect, push, and use git blame.',cwd:'~/harry',commands:[
+{cmd:'git log --graph --oneline --all',output:"*   ef91551 (HEAD -> main) Merge branch 'bugfix/release_01_fix1'\n|\\\n| * afae908 (bugfix/release_01_fix1) bugfixing\n* | 2a0a04e making progress in the main\n|/\n* c4d5e6f (tag: Release_01) Sally 2nd change",match:/^git log\s+--graph\s+--oneline\s+--all$/},
+{cmd:'git push',output:"To ~/git_remote_repo\n   2a0a04e..ef91551  main -> main",match:/^git push$/},
+{cmd:'git blame ./libs/library.txt',output:"2a0a04e1 (harry 2024-01-24 1) Sally change - further dev\na1b2c3d0 (harry 2024-01-23 2) library line 2\ni7j8k9l0 (harry 2024-01-24 3) Harrys change *here*\na1b2c3d0 (harry 2024-01-23 4) library line 4\nu7v8w9x0 (harry 2024-01-24 5) another of Harrys changes\nc4d5e6f0 (sally 2024-01-24 6) Sally's 2nd change\nafae9080 (harry 2024-01-24 7) *bugfixing in lib*",match:/^git blame\s+\.?\/?.*library\.txt$/},
+],callout:{type:'tip',icon:'🔍',text:'<code>git blame</code> shows who changed each line and when.'},hint:'Type: git log --graph --oneline --all'},
+]},
+{id:'ex8',tag:'tag-advanced',tagLabel:'🍒 Advanced',title:'Exercise VIII — Checkout & Cherry-pick',desc:'Check out old commits by tag, create branches, and cherry-pick selectively.',steps:[
+{instruction:'Check out the Release_01 tag, then create a new branch from it.',cwd:'~/harry',commands:[
+{cmd:'git checkout main',output:"Already on 'main'",match:/^git checkout main$/},
+{cmd:'git checkout Release_01',output:"Note: switching to 'Release_01'.\nYou are in 'detached HEAD' state.\nHEAD is now at c4d5e6f Sally 2nd change",match:/^git checkout Release_01$/},
+{cmd:'git checkout -b bugfix/release_01_fix2',output:"Switched to a new branch 'bugfix/release_01_fix2'",match:/^git checkout -b bugfix\/release_01_fix2$/},
+],callout:{type:'warn',icon:'⚠️',text:'<strong>Detached HEAD</strong> = not on any branch. Create a branch to keep commits!'},hint:'Type: git checkout main'},
+{instruction:'Cherry-pick a commit from main and push.',cwd:'~/harry',commands:[
+{cmd:'git log main --decorate --name-only',output:"(find SHA1 of 'making progress in the main' — 2a0a04e)",match:/^git log\s+main\s+--decorate\s+--name-only$/},
+{cmd:'git cherry-pick 2a0a04e',output:"[bugfix/release_01_fix2 f8g9h0i] making progress in the main\n 1 file changed, 1 insertion(+), 1 deletion(-)",match:/^git cherry-pick\s+\w+$/},
+{cmd:'git push --set-upstream origin',output:"To ~/git_remote_repo\n * [new branch] bugfix/release_01_fix2 -> bugfix/release_01_fix2",match:/^git push\s+--set-upstream\s+origin/},
+],hint:'Type: git log main --decorate --name-only'},
+]},
+{id:'ex9',tag:'tag-advanced',tagLabel:'⏪ Advanced',title:'Exercise IX — Git Reverts',desc:'Undo changes at every level: working dir, staged, committed, and pushed.',steps:[
+{instruction:'<strong>Undo working dir changes</strong> — edit, then discard.',cwd:'~/harry',commands:[
+{cmd:'git checkout main',output:"Switched to branch 'main'",match:/^git checkout main$/},
+{cmd:'vi main.txt',output:'(added "# Add temp line")',match:/^(vi|vim|nano|code)\s+main\.txt$/},
+{cmd:'git diff',output:"diff --git a/main.txt b/main.txt\n+# Add temp line",match:/^git diff$/},
+{cmd:'git restore main.txt',output:'',match:/^git restore main\.txt$/},
+],callout:{type:'danger',icon:'🚨',text:'<code>git restore</code> is <strong>irreversible</strong>. Always <code>git diff</code> first!'},hint:'Type: git checkout main'},
+{instruction:'<strong>Undo staged changes</strong> — unstage then discard.',cwd:'~/harry',commands:[
+{cmd:'vi main.txt',output:'(added "# Add temp line" again)',match:/^(vi|vim|nano|code)\s+main\.txt$/},
+{cmd:'git add main.txt',output:'',match:/^git add main\.txt$/},
+{cmd:'git restore --staged main.txt',output:'',match:/^git restore\s+--staged\s+main\.txt$/},
+{cmd:'git restore main.txt',output:'',match:/^git restore main\.txt$/},
+],hint:'Type: vi main.txt'},
+{instruction:'<strong>Undo local commit</strong> — reset --hard HEAD^.',cwd:'~/harry',commands:[
+{cmd:'vi main.txt',output:'(added "## Add temp line")',match:/^(vi|vim|nano|code)\s+main\.txt$/},
+{cmd:'git commit -a -m "Adding temp line number 3 commit"',output:"[main a0a176a] Adding temp line number 3 commit",match:/^git commit\s+-a\s+-m\s+["']Adding temp.*["']$/},
+{cmd:'git reset --hard HEAD^',output:"HEAD is now at ef91551 Merge branch 'bugfix/release_01_fix1'",match:/^git reset\s+--hard\s+HEAD\^$/},
+{cmd:'git reflog',output:"ef91551 HEAD@{0}: reset: moving to HEAD^\na0a176a HEAD@{1}: commit: Adding temp line number 3 commit",match:/^git reflog$/},
+],callout:{type:'warn',icon:'⚠️',text:'<code>--hard</code> resets everything. Commit still exists in <code>git reflog</code>.'},hint:'Type: vi main.txt'},
+{instruction:'<strong>Revert pushed commit</strong> — git revert creates a new undo commit.',cwd:'~/harry',commands:[
+{cmd:'git reset --hard a0a176a',output:"HEAD is now at a0a176a Adding temp line number 3 commit",match:/^git reset\s+--hard\s+\w+$/},
+{cmd:'git push',output:"To ~/git_remote_repo\n   ef91551..a0a176a  main -> main",match:/^git push$/},
+{cmd:'git revert HEAD',output:"[main 00588e9] Revert \"Adding temp line number 3 commit\"\n 1 file changed, 1 deletion(-)",match:/^git revert\s+(HEAD|\w+)$/},
+{cmd:'git push',output:"To ~/git_remote_repo\n   a0a176a..00588e9  main -> main",match:/^git push$/},
+],callout:{type:'info',icon:'💡',text:'<code>git revert</code> is safe for shared history — creates a new commit.'},hint:'Type: git reset --hard a0a176a'},
+]},
+{id:'ex10',tag:'tag-advanced',tagLabel:'📦 Advanced',title:'Exercise X — Git Stash',desc:'Stash WIP, fix an urgent bug, pop stash back.',steps:[
+{instruction:'Start a task, then stash when emergency hits.',cwd:'~/harry',commands:[
+{cmd:'git checkout main',output:"Already on 'main'",match:/^git checkout main$/},
+{cmd:'vi main.txt',output:'(added "Add regular task")',match:/^(vi|vim|nano|code)\s+main\.txt$/},
+{cmd:'git stash',output:'Saved working directory and index state WIP on main: 00588e9 Revert "Adding temp line..."',match:/^git stash$/},
+],hint:'Type: git checkout main'},
+{instruction:'Do the emergency fix.',cwd:'~/harry',commands:[
+{cmd:'vi main.txt',output:'(added "Add quick fix immediately" as first line)',match:/^(vi|vim|nano|code)\s+main\.txt$/},
+{cmd:'git commit -a -m "Fix a bug in a quick"',output:"[main 92c6c99] Fix a bug in a quick",match:/^git commit\s+-a\s+-m\s+["']Fix a bug.*["']$/},
+],hint:'Type: vi main.txt'},
+{instruction:'Pop stash and push everything.',cwd:'~/harry',commands:[
+{cmd:'git stash pop',output:"Auto-merging main.txt\nOn branch main\nChanges not staged for commit:\n  modified:   main.txt",match:/^git stash pop$/},
+{cmd:'git commit -a -m "Regular task"',output:"[main c5e3a89] Regular task",match:/^git commit\s+-a\s+-m\s+["']Regular task["']$/},
+{cmd:'git push',output:"To ~/git_remote_repo\n   00588e9..c5e3a89  main -> main",match:/^git push$/},
+],hint:'Type: git stash pop'},
+]},
+{id:'ex11',tag:'tag-advanced',tagLabel:'🩹 Advanced',title:'Exercise XI — Format & Apply Patch',desc:'Create a patch from a commit, apply it in another repo.',steps:[
+{instruction:'Add "patch line" to library.txt, commit, format patch.',cwd:'~/harry/libs',commands:[
+{cmd:'cd ~/harry/libs',output:'',match:/^cd ~\/harry\/?libs$/},
+{cmd:'vi library.txt',output:'(added "patch line" to end)',match:/^(vi|vim|nano|code)\s+library\.txt$/},
+{cmd:'git commit -am "harrys commit for patch"',output:"[main d3eb9fd] harrys commit for patch",match:/^git commit\s+-am?\s+["']harrys commit.*["']$/},
+{cmd:'git format-patch -1 main',output:"0001-harrys-commit-for-patch.patch",match:/^git format-patch\s+-1\s+main$/},
+],hint:'Type: cd ~/harry/libs'},
+{instruction:'In Sally\'s repo, check and apply the patch.',cwd:'~/sally/libs',commands:[
+{cmd:'cd ~/sally/libs',output:'',match:/^cd ~\/sally\/?libs$/},
+{cmd:'git pull',output:"Already up to date.",match:/^git pull$/},
+{cmd:'git apply --stat ~/harry/libs/0001-harrys-commit-for-patch.patch',output:" libs/library.txt |    1 +\n 1 file changed, 1 insertion(+)",match:/^git apply\s+--stat\s+.*\.patch$/},
+{cmd:'git apply --check ~/harry/libs/0001-harrys-commit-for-patch.patch',output:"(no errors — patch is applicable)",match:/^git apply\s+--check\s+.*\.patch$/},
+{cmd:'git am --signoff < ~/harry/libs/0001-harrys-commit-for-patch.patch',output:"Applying: harrys commit for patch",match:/^git am\s+--signoff.*\.patch$/},
+],callout:{type:'tip',icon:'✅',text:'<code>--signoff</code> adds a "Signed-off-by" trailer for tracking.'},hint:'Type: cd ~/sally/libs'},
+]},
+{id:'ex12',tag:'tag-advanced',tagLabel:'🔬 Advanced',title:'Exercise XII — Squash Commits',desc:'Interactive rebase to squash multiple commits into one.',steps:[
+{instruction:'Make 2 commits in Sally\'s repo.',cwd:'~/sally',commands:[
+{cmd:'cd ~/sally',output:'',match:/^cd ~\/sally$/},
+{cmd:'vi libs/library.txt',output:'(added 1st change)',match:/^(vi|vim|nano|code)\s+(libs\/)?library\.txt$/},
+{cmd:'git commit -a -m "Add 1st commit line"',output:"[main 5822495] Add 1st commit line",match:/^git commit\s+-a\s+-m\s+["']Add 1st commit.*["']$/},
+{cmd:'vi libs/library.txt',output:'(added 2nd change)',match:/^(vi|vim|nano|code)\s+(libs\/)?library\.txt$/},
+{cmd:'git commit -a -m "Add 2nd commit for squash"',output:"[main 9fb9d06] Add 2nd commit for squash",match:/^git commit\s+-a\s+-m\s+["']Add 2nd commit.*["']$/},
+],hint:'Type: cd ~/sally'},
+{instruction:'Interactive rebase to squash into 1 commit.',cwd:'~/sally',commands:[
+{cmd:'git rebase -i HEAD^^',output:"(editor opens)\n\npick 5822495 Add 1st commit line\ns    9fb9d06 Add 2nd commit for squash\n\n(change 'pick' → 's' on second line, save)",match:/^git rebase\s+-i\s+(HEAD\^\^|HEAD~2|\w+)$/},
+{cmd:'git log -p -2',output:"[detached HEAD e33ede3] Add 1st commit line\n 2 files changed, 3 insertions(+)\nSuccessfully rebased — now 1 commit instead of 2",match:/^git log\s+(-p\s+-2|-2\s+-p)$/},
+{cmd:'git push',output:"To ~/git_remote_repo\n   d3eb9fd..e33ede3  main -> main",match:/^git push$/},
+],hint:'Type: git rebase -i HEAD^^'},
+]},
+{id:'ex13',tag:'tag-advanced',tagLabel:'🌐 Advanced',title:'Exercise XIII — Cross-repo Fetch',desc:'Fetch a branch directly from another developer\'s local repo.',steps:[
+{instruction:'From Sally\'s repo, fetch Harry\'s bugfix branch directly.',cwd:'~/sally',commands:[
+{cmd:'git branch',output:"* main",match:/^git branch$/},
+{cmd:'git branch -r',output:"  origin/HEAD -> origin/main\n  origin/main\n  origin/bugfix/release_01_fix1\n  origin/bugfix/release_01_fix2",match:/^git branch\s+-r$/},
+{cmd:'git fetch ~/harry bugfix/release_01_fix1:bugfix/release_01_fix1',output:"From /home/user/harry\n * [new branch] bugfix/release_01_fix1 -> bugfix/release_01_fix1",match:/^git fetch\s+~\/harry\s+bugfix\/release_01_fix1:bugfix\/release_01_fix1$/},
+],hint:'Type: git branch'},
+{instruction:'Verify and check out the branch.',cwd:'~/sally',commands:[
+{cmd:'git log -1 --oneline bugfix/release_01_fix1',output:"afae908 (bugfix/release_01_fix1) bugfixing",match:/^git log\s+-1\s+--oneline\s+bugfix\/release_01_fix1$/},
+{cmd:'git checkout bugfix/release_01_fix1',output:"Switched to branch 'bugfix/release_01_fix1'",match:/^git checkout\s+bugfix\/release_01_fix1$/},
+{cmd:'git branch',output:"* bugfix/release_01_fix1\n  main",match:/^git branch$/},
+],hint:'Type: git log -1 --oneline bugfix/release_01_fix1'},
+]},
+];
+
+// ===================== CUSTOM TERMINAL ENGINE =====================
+class CustomTerminal {
+  constructor(bodyEl, steps, exerciseId, onComplete) {
+    this.el = bodyEl;
+    this.steps = steps;
+    this.exerciseId = exerciseId;
+    this.onComplete = onComplete;
+    this.stepIdx = 0;
+    this.cmdIdx = 0;
+    this.history = [];
+    this.historyPos = -1;
+    this.done = false;
+    this.inputEl = null;
+    this.init();
+  }
+
+  init() {
+    this.writeLine('  Welcome to Git Training Lab — Type commands to proceed', 'info');
+    this.writeLine('  Type "hint" for help, "skip" to skip, "clear" to clear', 'info');
+    this.writeLine('');
+    this.showPrompt();
+    // Focus on click
+    this.el.addEventListener('click', () => { if (this.inputEl) this.inputEl.focus(); });
+  }
+
+  get cwd() {
+    const s = this.steps[this.stepIdx];
+    return s ? s.cwd : '~';
+  }
+
+  writeLine(text, cls) {
+    const div = document.createElement('div');
+    div.className = 'line' + (cls ? ' line-' + cls : '');
+    div.textContent = text;
+    // Insert before the current input line if it exists
+    if (this.inputEl) {
+      const inputLine = this.inputEl.closest('.input-line');
+      if (inputLine) {
+        this.el.insertBefore(div, inputLine);
+        this.scrollBottom();
+        return;
+      }
+    }
+    this.el.appendChild(div);
+    this.scrollBottom();
+  }
+
+  writeHTML(html, cls) {
+    const div = document.createElement('div');
+    div.className = 'line' + (cls ? ' line-' + cls : '');
+    div.innerHTML = html;
+    if (this.inputEl) {
+      const inputLine = this.inputEl.closest('.input-line');
+      if (inputLine) {
+        this.el.insertBefore(div, inputLine);
+        this.scrollBottom();
+        return;
+      }
+    }
+    this.el.appendChild(div);
+    this.scrollBottom();
+  }
+
+  writeOutput(text) {
+    if (!text) return;
+    text.split('\n').forEach(line => {
+      if (line.includes('[rejected]') || line.includes('CONFLICT') || line.includes('error:')) {
+        this.writeLine(line, 'error');
+      } else {
+        this.writeLine(line, 'output');
+      }
+    });
+  }
+
+  showPrompt() {
+    if (this.done) return;
+    // Remove old input line if exists
+    const oldInput = this.el.querySelector('.input-line');
+    if (oldInput) oldInput.remove();
+
+    const line = document.createElement('div');
+    line.className = 'input-line';
+
+    const prompt = document.createElement('span');
+    prompt.className = 'prompt';
+    prompt.textContent = `${this.cwd}]$ `;
+    line.appendChild(prompt);
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'input-text';
+    input.spellcheck = false;
+    input.autocomplete = 'off';
+    input.autocapitalize = 'off';
+    line.appendChild(input);
+
+    this.el.appendChild(line);
+    this.inputEl = input;
+    this.scrollBottom();
+
+    // Auto-focus after a tiny delay (helps on mobile)
+    setTimeout(() => input.focus(), 50);
+
+    input.addEventListener('keydown', (e) => this.handleKey(e));
+  }
+
+  handleKey(e) {
+    if (this.done) return;
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const val = this.inputEl.value.trim();
+      // Freeze the input line as static text
+      const inputLine = this.inputEl.closest('.input-line');
+      if (inputLine) {
+        const frozen = document.createElement('div');
+        frozen.className = 'line';
+        frozen.innerHTML = `<span class="prompt">${this.cwd}]$ </span>${this.escapeHTML(this.inputEl.value)}`;
+        this.el.insertBefore(frozen, inputLine);
+        inputLine.remove();
+      }
+      this.inputEl = null;
+      this.processCmd(val);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (this.history.length > 0 && this.historyPos < this.history.length - 1) {
+        this.historyPos++;
+        this.inputEl.value = this.history[this.history.length - 1 - this.historyPos];
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (this.historyPos > 0) {
+        this.historyPos--;
+        this.inputEl.value = this.history[this.history.length - 1 - this.historyPos];
+      } else {
+        this.historyPos = -1;
+        this.inputEl.value = '';
+      }
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      this.autocomplete();
+    }
+  }
+
+  autocomplete() {
+    const s = this.steps[this.stepIdx];
+    if (!s) return;
+    const c = s.commands[this.cmdIdx];
+    if (!c) return;
+    const val = this.inputEl.value;
+    if (c.cmd.startsWith(val) && val.length > 0) {
+      this.inputEl.value = c.cmd;
+    }
+  }
+
+  processCmd(input) {
+    if (!input) { this.showPrompt(); return; }
+    this.history.push(input);
+    this.historyPos = -1;
+
+    // Meta commands
+    if (input === 'hint') {
+      const s = this.steps[this.stepIdx];
+      this.writeLine(`  💡 ${s?.hint || 'Follow the instructions above.'}`, 'hint');
+      this.showPrompt();
+      return;
+    }
+    if (input === 'clear') {
+      this.el.innerHTML = '';
+      this.showPrompt();
+      return;
+    }
+    if (input === 'skip') {
+      this.skipCmd();
+      return;
+    }
+
+    const s = this.steps[this.stepIdx];
+    if (!s) { this.showPrompt(); return; }
+    const c = s.commands[this.cmdIdx];
+    if (!c) { this.showPrompt(); return; }
+
+    if (c.match.test(input)) {
+      this.writeOutput(c.output);
+      this.advance();
+    } else {
+      this.writeLine(`  ✗ Not quite. Expected: ${c.cmd}`, 'error');
+      this.writeLine('  Type "hint" for help or "skip" to skip.', 'info');
+      this.showPrompt();
+    }
+  }
+
+  skipCmd() {
+    const s = this.steps[this.stepIdx];
+    const c = s?.commands[this.cmdIdx];
+    if (c) {
+      this.writeLine(`  ⏭ Skipped: ${c.cmd}`, 'info');
+      this.writeOutput(c.output);
+    }
+    this.advance();
+  }
+
+  advance() {
+    this.cmdIdx++;
+    const s = this.steps[this.stepIdx];
+    if (this.cmdIdx >= s.commands.length) {
+      // Step done
+      this.cmdIdx = 0;
+      const doneStepIdx = this.stepIdx;
+      this.stepIdx++;
+      this.markStepDone(doneStepIdx);
+
+      if (this.stepIdx >= this.steps.length) {
+        this.done = true;
+        this.writeLine('');
+        this.writeLine('  ✓ Exercise complete! Well done. 🎉', 'success');
+        this.writeLine('');
+        this.setStatus('done');
+        if (this.onComplete) this.onComplete(this.exerciseId);
+        return;
+      }
+      this.writeLine('');
+      this.writeLine('  ✓ Step complete — next step below.', 'success');
+      this.writeLine('');
+      this.markStepCurrent(this.stepIdx);
+    }
+    this.showPrompt();
+  }
+
+  markStepDone(idx) {
+    const steps = document.querySelectorAll(`#${this.exerciseId} .step`);
+    if (steps[idx]) {
+      steps[idx].classList.remove('current');
+      steps[idx].classList.add('done', 'just-done');
+      setTimeout(() => steps[idx].classList.remove('just-done'), 500);
+    }
+  }
+
+  markStepCurrent(idx) {
+    const steps = document.querySelectorAll(`#${this.exerciseId} .step`);
+    if (steps[idx]) steps[idx].classList.add('current');
+  }
+
+  setStatus(status) {
+    const wrapper = document.querySelector(`#${this.exerciseId} .cterm`);
+    if (!wrapper) return;
+    const st = wrapper.querySelector('.cterm-status');
+    wrapper.classList.remove('active', 'completed');
+    if (status === 'done') {
+      wrapper.classList.add('completed');
+      if (st) { st.className = 'cterm-status st-done'; st.textContent = '✓ Complete'; }
+    } else if (status === 'active') {
+      wrapper.classList.add('active');
+      if (st) { st.className = 'cterm-status st-active'; st.textContent = '● Active'; }
+    }
+  }
+
+  scrollBottom() {
+    this.el.scrollTop = this.el.scrollHeight;
+  }
+
+  escapeHTML(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+}
+
+// ===================== RENDER =====================
+function renderAll() {
+  const mc = document.getElementById('mainContent');
+  let h = '';
+  EXERCISES.forEach((ex, i) => {
+    h += `<div class="exercise" id="${ex.id}"><div class="exercise-header">`;
+    h += `<div class="exercise-tag ${ex.tag}">${ex.tagLabel}</div>`;
+    h += `<h2>${ex.title}</h2><p class="exercise-desc">${ex.desc}</p></div>`;
+    h += `<div class="steps">`;
+    ex.steps.forEach((s, si) => {
+      h += `<div class="step${si===0?' current':''}"><div class="step-dot"></div>`;
+      h += `<div class="step-instruction">${s.instruction}</div>`;
+      if (s.files) {
+        h += `<div class="file-grid">`;
+        s.files.forEach(f => {
+          h += `<div class="file-block"><div class="file-block-header">📄 ${f.name}</div>`;
+          h += `<div class="file-block-body">${f.content}</div></div>`;
+        });
+        h += `</div>`;
+      }
+      if (s.callout) {
+        h += `<div class="callout callout-${s.callout.type}"><span>${s.callout.icon}</span><span>${s.callout.text}</span></div>`;
+      }
+      h += `</div>`;
+    });
+    h += `</div>`;
+    // Terminal
+    h += `<div class="cterm"><div class="cterm-header">`;
+    h += `<div class="cterm-dots"><span></span><span></span><span></span></div>`;
+    h += `<div class="cterm-title">${ex.steps[0]?.cwd||'~'} — bash</div>`;
+    h += `<span class="cterm-status st-waiting">○ Waiting</span>`;
+    h += `</div><div class="cterm-body" id="tbody-${ex.id}" tabindex="0"></div>`;
+    h += `<div class="cterm-hint"><kbd>Tab</kbd> autocomplete <kbd>↑↓</kbd> history <kbd>hint</kbd> help <kbd>skip</kbd> skip cmd</div>`;
+    h += `</div></div>`;
+    if (i < EXERCISES.length - 1) h += `<hr class="section-divider">`;
+  });
+  h += `<div class="footer-section"><div style="font-size:2rem;margin-bottom:.75rem">🎉</div>`;
+  h += `<h3 style="font-weight:800;font-size:1.4rem;margin-bottom:.5rem">Training Complete!</h3>`;
+  h += `<p style="color:var(--text-dim);max-width:400px;margin:0 auto;font-size:.9rem">From basic commits to advanced rebasing — keep practicing!</p>`;
+  h += `<a href="#hero" class="btn btn-secondary" style="margin-top:1.5rem">↑ Back to top</a></div>`;
+  mc.innerHTML = h;
+}
+
+// ===================== LAZY INIT & PROGRESS =====================
+const initd = new Set(), completed = new Set();
+
+function initTerm(id) {
+  if (initd.has(id)) return;
+  initd.add(id);
+  const ex = EXERCISES.find(e => e.id === id);
+  if (!ex) return;
+  const bodyEl = document.getElementById(`tbody-${id}`);
+  if (!bodyEl) return;
+  const t = new CustomTerminal(bodyEl, ex.steps, id, onDone);
+  t.setStatus('active');
+}
+
+function onDone(id) {
+  completed.add(id);
+  const link = document.querySelector(`.sidebar-link[data-ex="${id}"]`);
+  if (link) link.classList.add('completed');
+  const count = completed.size;
+  document.getElementById('progressFill').style.width = Math.round((count/EXERCISES.length)*100) + '%';
+  document.getElementById('progressCount').textContent = `${count} / ${EXERCISES.length}`;
+}
+
+function setupObservers() {
+  const exEls = document.querySelectorAll('.exercise');
+  const links = document.querySelectorAll('.sidebar-link');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        links.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.sidebar-link[data-ex="${id}"]`);
+        if (link) { link.classList.add('active'); if (completed.has(id)) link.classList.add('completed'); }
+        initTerm(id);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '-50px 0px' });
+  exEls.forEach(el => obs.observe(el));
+
+  links.forEach(l => l.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.querySelector(l.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+
+  window.addEventListener('scroll', () => {
+    document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 800);
+  });
+}
+
+// ===================== BOOT =====================
+renderAll();
+setupObservers();
+</script>
+</body>
+</html>
