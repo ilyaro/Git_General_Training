@@ -4,7 +4,11 @@ This is from zero to hero advanced git training with hands-on practice of 13 han
 
 First, read [Git_General_Training.pdf](Git_General_Training.pdf) 
 
-When you go to Handson # in the training, please read what you need to do Do it and see the appropriate Lab here: [Git_Training_LAB.pdf](Git_Training_LAB.pdf)
+When you go to Handson in the training, please read what you need to do.
+
+Do it and see the appropriate Lab here:
+[Git_Training_LAB.pdf](Git_Training_LAB.pdf)
+
 Or here:
 [https://ilyaro.github.io/Git_General_Training](https://ilyaro.github.io/Git_General_Training/)
 
