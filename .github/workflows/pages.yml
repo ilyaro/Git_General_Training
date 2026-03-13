@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - './Labs/*.html'
+      - 'Labs/*.html'
   workflow_dispatch:
 
 permissions:
@@ -27,5 +27,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ./Labs/*.html
+          path: .
+      - uses: actions/deploy-pages@v4
         id: deployment
