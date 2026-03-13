@@ -8,8 +8,6 @@ When you go to Handson # in the training, please read what you need to do Do it 
 Or here:
 [https://ilyaro.github.io/Git_General_Training](https://ilyaro.github.io/Git_General_Training/)
 
-Try the Git Lab in the interactive pseudo terminal: [git-training-lab-interactive.html](git-training-lab-interactive.html)
-
 The practice goes from adding user details to git and creating a repo for all basic to advanced commands
 
 All on local disk without the usage of git servers
