@@ -3,6 +3,9 @@ name: Deploy GitHub Pages
 on:
   push:
     branches: [main]
+    paths:
+      - 'index.html'
+      - 'git-training-lab*.html'
   workflow_dispatch:
 
 permissions:
