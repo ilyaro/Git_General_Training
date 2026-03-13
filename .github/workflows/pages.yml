@@ -5,7 +5,8 @@ on:
     branches: [main]
     paths:
       - 'index.html'
-      - 'git-training-lab*.html'
+      - 'git-training-lab.html'
+      - 'git-training-lab-interactive.html'
   workflow_dispatch:
 
 permissions:
